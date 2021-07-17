@@ -26,8 +26,6 @@ import sys
 
 
 def printAll(expected, predicted, gesture, participant, model, selected_features):
-    global samplingRate, windowSize
-
     auc = roc_auc_score(expected, predicted)
     fpr, tpr, thresholds = roc_curve(expected, predicted, pos_label=1)
     eer = brentq(lambda x: 1. - x - interp1d(fpr, tpr)(x), 0., 1.)
@@ -40,7 +38,7 @@ def printAll(expected, predicted, gesture, participant, model, selected_features
 
     feature_importance = list(model.feature_importances_)
 
-    print(gesture + ", " + str(selected_features) + ", "
+    print("RF-501", gesture + ", " + str(selected_features) + ", "
           + str(participant) + ", {:.2f}" .format(acc) + ", {:.2f}" .format(auc)
           + ", " + str(tp + fn) + ", " + str(fp + tn) + ", "
           + str(tn) + ", " + str(fp) + ", " + str(fn) + ", " + str(tp)
@@ -67,12 +65,12 @@ def loadData(gesture, participant, selected_features):
         # gesture                                           37
         # participant_no                                    38
 
-        columns_circle_all = [12, 24, 29, 30, 32, 20, 22, 23, 31, 35, 4, 8, 11, 21, 28, 2, 14, 15, 19, 33]
-        columns_updown_all = [19, 20, 22, 25, 32, 23, 24, 29, 30, 35, 4, 21, 28, 33, 36, 1, 7, 13, 26, 31]
-        columns_tilt_all = [20, 21, 23, 24, 27, 26, 28, 29, 30, 32, 2, 6, 9, 19, 31, 3, 8, 33, 34, 35]
-        columns_triangle_all = [20, 22, 23, 29, 32, 19, 21, 24, 30, 31, 14, 25, 26, 27, 28, 1, 4, 33, 34, 35]
-        columns_turn_all = [20, 23, 24, 26, 31, 3, 8, 21, 22, 29, 4, 9, 19, 28, 32, 6, 27, 30, 33, 34]
-        columns_square_all = [19, 22, 24, 29, 33, 20, 23, 25, 30, 32, 1, 21, 26, 28, 31, 4, 5, 18, 27, 36]
+        columns_circle_all = []
+        columns_updown_all = []
+        columns_tilt_all = []
+        columns_triangle_all = []
+        columns_turn_all = []
+        columns_square_all = []
 
         if selected_features == 36:
             new_x = np.loadtxt(path, delimiter=",", usecols=range(1, 37))
@@ -116,17 +114,16 @@ def loadData(gesture, participant, selected_features):
 
     return x, y
 
-samplingRate, windowSize = 55, 1
 gestures = ["Circle", "Updown", "Tilt", "Triangle", "Turn", "Square"]
 participants = range(1,16)
-selected_features_list = [5, 10, 15, 20, 36]
-log = False
+selected_features_list = [36]#[5, 10, 15, 20, 36]
+log = True
 
 if log == True:
-    sys.stdout = open("results.txt", "w")
+    sys.stdout = open("results/results_36_feature_importances.txt", "w")
 
-print("GESTURE, # OF FEATURES, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
-      " TN, FP, FN, TP, FAR, FRR, ->EER<-, FEATURE_IMPORTANCE")
+print("ALGORITHM, GESTURE, # OF FEATURES, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
+      " TN, FP, FN, TP, FAR, FRR, EER, FEATURE_IMPORTANCE")
 
 for selected_features in selected_features_list:
     for gesture in gestures:
@@ -137,7 +134,7 @@ for selected_features in selected_features_list:
             x_train, x_test, y_train, final_y_test = \
                 train_test_split(x_data, y_data, test_size=0.30, random_state=42, shuffle=True)
 
-            clfRF = RandomForestClassifier(n_estimators=800)
+            clfRF = RandomForestClassifier(n_estimators=501)
 
             clfRF.fit(x_train, y_train)
             final_y_pred_RF = clfRF.predict(x_test)
