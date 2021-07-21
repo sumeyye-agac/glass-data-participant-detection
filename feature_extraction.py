@@ -138,3 +138,4 @@ for gesture in gesture_list:
         data = np.loadtxt(data_path, delimiter=",", usecols=range(1,13))
         createFeatureFile(data, features_path)
         print("output: ", features_path)
+
