@@ -1,6 +1,3 @@
-# Sumeyye Agac - 2018800039
-# CmpE 58Z - Introduction to Biometrics (Spring 2021)
-# Project
 # ------------------------------------------------------------------------
 # If features are extracted (use feature_extraction.py to extract if needed.)
 # it will generate the performance results for each gesture-participant combination
