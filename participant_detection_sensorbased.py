@@ -41,10 +41,15 @@ def printAll(expected, predicted, gesture, participant, model, selected_features
           + str(tn) + ", " + str(fp) + ", " + str(fn) + ", " + str(tp)
           + ", {:.2f}".format(far) + ", {:.2f}" .format(frr) + ", " + "{:.2f}" .format(eer))
 		  
-def loadData(gesture, participant, selected_features):
+def loadData(gesture, participant, selected_features, overlapping):
     for p in range(1, 16):
-        path = "./features/"+ "Features_p"\
-               + str(p) + "_" + gesture + ".csv"
+
+        if overlapping == True:
+            path = "./features_w_overlapping/"+ "Features_p"\
+                   + str(p) + "_" + gesture + ".csv"
+        else:
+            path = "./features_wo_overlapping/" + "Features_p" \
+                    + str(p) + "_" + gesture + ".csv"
 
         # iD, Accmin_X, Accmin_Y, Accmin_Z,  0              1 2 3
         # Accmax_X, Accmax_Y, Accmax_Z,                     4 5 6
@@ -115,15 +120,20 @@ def loadData(gesture, participant, selected_features):
 
     return x, y
 
-gestures = ["Updown"]
+gestures = ["Circle", "Updown", "Tilt", "Triangle", "Turn", "Square"]
 
 participants = range(1,16)
 
-selected_sensors = ["AccGyrRotVecMagField"]
+selected_sensors = ["Acc", "Gyr", "RotVec", "MagField",
+                    "AccGyr", "AccRotVec", "AccMagField", "GyrRotVec", "GyrMagField",
+                    "RotVecMagField", "AccGyrRotVec", "AccGyrMagField", "GyrRotVecMagField",
+                    "AccRotVecMagField", "AccGyrRotVecMagField"]
 
-log = False
+log = True
+overlapping = False
+
 if log == True:
-    sys.stdout = open("results/results_sensor_based.txt", "w")
+    sys.stdout = open("results/results_sensor_based_wo_overlapping.txt", "w")
 
 print("ALGORITHM, GESTURE, # OF SELECTED SENSORS, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
       " TN, FP, FN, TP, FAR, FRR, EER")
@@ -132,7 +142,7 @@ for selected_features in selected_sensors:
     for gesture in gestures:
         for participant in participants:
 
-            x_data, y_data = loadData(gesture, participant, selected_features)
+            x_data, y_data = loadData(gesture, participant, selected_features, overlapping)
 
             x_train, x_test, y_train, final_y_test = \
                 train_test_split(x_data, y_data, test_size=0.30, random_state=42, shuffle=True)

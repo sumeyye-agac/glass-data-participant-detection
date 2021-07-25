@@ -1,7 +1,3 @@
-# Sumeyye Agac - 2018800039
-# CmpE 58Z - Introduction to Biometrics (Spring 2021)
-# Project
-# ------------------------------------------------------------------------
 # Extraction of feature files for each gesture-participant combination
 # This code will use the files under ./dataset/ folder to extract 36 features
 # and save under ./features/ folder.
@@ -91,31 +87,21 @@ def calculateFeaturesofWindow(numberOfFirstRow, dataset, sizeOfWindow):
               ]
     return window
 
-def createFeatureFile(data, features_path):
+def createFeatureFile_w_overlapping(data, features_path):
     global samplingRate, windowSize
 
     fd = open(features_path, "a")
 
     numberOfLine = data.shape[0]
     print("numberOfLine: ", numberOfLine)
+
     window = samplingRate*windowSize
     sizeOfOverlap = np.floor(window/2)
     sizeOfWindow = sizeOfOverlap*2
-    rest1 = numberOfLine % sizeOfWindow
+
     numberOfWindow1 = np.floor(numberOfLine / sizeOfWindow)
-
-    print("rest1: ", rest1)
-    print("numberOfWindow1: ", numberOfWindow1)
-
-    rest2 = (numberOfLine-np.floor(window/2)) % sizeOfWindow
     numberOfWindow2 = np.floor((numberOfLine-np.floor(window/2)) / sizeOfWindow)
-
-    print("rest2: ", rest2)
-    print("numberOfWindow2: ", numberOfWindow2)
-
     numberOfWindow = numberOfWindow1 + numberOfWindow2
-    print("numberOfWindow: ", numberOfWindow)
-
 
     for i in range(int(numberOfWindow)):
         newWindow = calculateFeaturesofWindow(i*int(sizeOfOverlap), data, int(sizeOfWindow)) # %50 overlapping
@@ -123,19 +109,40 @@ def createFeatureFile(data, features_path):
 
     fd.close()
 
+def createFeatureFile_wo_overlapping(data, features_path):
+    global samplingRate, windowSize
+
+    fd = open(features_path, "a")
+
+    numberOfLine = data.shape[0]
+    print("numberOfLine: ", numberOfLine)
+    sizeOfWindow = samplingRate*windowSize
+
+    numberOfWindow = np.floor(numberOfLine/sizeOfWindow)
+
+    for i in range(int(numberOfWindow)):
+        newWindow = calculateFeaturesofWindow(i*int(sizeOfWindow), data, int(sizeOfWindow))
+        addRow(newWindow, fd)
+
+    fd.close()
 
 samplingRate, windowSize = 55, 1
 gesture_list = ["Circle", "Updown", "Tilt", "Triangle", "Turn", "Square"]
 participant_no_list = range(1,16)
 
+overlapping = False
+
 for gesture in gesture_list:
     input_path = "./dataset/"
-    output_path = "./features/"
     for participant_no in participant_no_list:
         data_path = input_path + "p" + str(participant_no) + "_" + gesture + ".csv"
         print("input: ", data_path)
-        features_path = output_path + "Features_p" + str(participant_no) + "_" + gesture + ".csv"
         data = np.loadtxt(data_path, delimiter=",", usecols=range(1,13))
-        createFeatureFile(data, features_path)
+        if overlapping == True:
+            features_path = "./features_w_overlapping/" + "Features_p" + str(participant_no) + "_" + gesture + ".csv"
+            createFeatureFile_w_overlapping(data, features_path)
+        else:
+            features_path = "./features_wo_overlapping/" + "Features_p" + str(participant_no) + "_" + gesture + ".csv"
+            createFeatureFile_wo_overlapping(data, features_path)
         print("output: ", features_path)
 
