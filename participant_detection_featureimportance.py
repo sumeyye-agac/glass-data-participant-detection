@@ -17,9 +17,10 @@ from sklearn.metrics import roc_auc_score
 from scipy.optimize import brentq
 from sklearn.metrics import accuracy_score
 from scipy.interpolate import interp1d
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 import sys
+from imblearn.over_sampling._smote import SMOTE
+from sklearn import model_selection
 
 
 def printAll(expected, predicted, gesture, participant, model, selected_features):
@@ -40,11 +41,11 @@ def printAll(expected, predicted, gesture, participant, model, selected_features
           + ", " + str(tp + fn) + ", " + str(fp + tn) + ", "
           + str(tn) + ", " + str(fp) + ", " + str(fn) + ", " + str(tp)
           + ", {:.2f}".format(far) + ", {:.2f}" .format(frr) + ", " + "{:.2f}" .format(eer)
-          )#+ ", " + str(feature_importance)[1:-1])
+          + ", " + str(feature_importance)[1:-1])
 		  
-def loadData(gesture, participant, selected_features):
+def loadData(gesture, participant, selected_features, validation, smote):
     for p in range(1, 16):
-        path = "./features/"+ "Features_p"\
+        path = "./features_w_overlapping/"+ "Features_p"\
                + str(p) + "_" + gesture + ".csv"
 
         # iD, Accmin_X, Accmin_Y, Accmin_Z,  0              1 2 3
@@ -60,19 +61,25 @@ def loadData(gesture, participant, selected_features):
         # RotVecmax_X, RotVecmax_Y, RotVecmax_Z,            31 32 33
         # RotVecmean_X, RotVecmean_Y, RotVecmean_Z,         34 35 36
 
+        if validation == "CV" and smote == False:
+            columns_circle_all = [29, 30, 24, 23, 22, 32, 12, 31, 35, 20, 14, 11, 21, 4, 8,
+                                   26, 15, 33, 2, 28, 19, 5, 27, 3, 25, 1, 18, 17, 35, 34, 13, 10, 6, 7, 9, 16]
+            columns_updown_all = [22, 25, 19, 32, 20, 33, 30, 35, 23, 24, 35, 29, 4, 21, 28,
+                                   26, 31, 8, 1, 7, 6, 13, 5, 2, 27, 3, 10, 34, 12, 9, 15, 14, 11, 17, 18, 16]
+            columns_tilt_all = [27, 20, 24, 21, 29, 23, 26, 30, 28, 31, 32, 6, 9, 34, 33, 19,
+                                 2, 3, 35, 8, 15, 22, 35, 14, 4, 12, 25, 1, 11, 10, 5, 13, 17, 7, 16, 18]
+            columns_triangle_all = [22, 20, 31, 29, 23, 25, 32, 24, 19, 30, 21, 35, 26, 28, 34,
+                                     27, 14, 4, 33, 12, 1, 6, 15, 35, 11, 2, 7, 5, 3, 18, 13, 8, 17, 10, 9, 16]
+            columns_turn_all = [20, 26, 23, 21, 24, 29, 22, 31, 3, 8, 9, 28, 32, 19, 4, 33, 27,
+                                 34, 30, 6, 1, 25, 14, 2, 11, 15, 5, 12, 7, 35, 35, 13, 10, 18, 16, 17]
+            columns_square_all = [22, 19, 30, 23, 24, 29, 32, 33, 20, 31, 21, 28, 25, 1, 18, 26,
+                                   4, 27, 12, 15, 35, 35, 5, 34, 7, 8, 2, 3, 14, 6, 11, 17, 13, 16, 10, 9]
 
-        columns_circle_all = [29, 30, 24, 23, 22, 32, 12, 31, 35, 20, 14, 11, 21, 4, 8,
-                               26, 15, 33, 2, 28, 19, 5, 27, 3, 25, 1, 18, 17, 35, 34, 13, 10, 6, 7, 9, 16]
-        columns_updown_all = [22, 25, 19, 32, 20, 33, 30, 35, 23, 24, 35, 29, 4, 21, 28,
-                               26, 31, 8, 1, 7, 6, 13, 5, 2, 27, 3, 10, 34, 12, 9, 15, 14, 11, 17, 18, 16]
-        columns_tilt_all = [27, 20, 24, 21, 29, 23, 26, 30, 28, 31, 32, 6, 9, 34, 33, 19,
-                             2, 3, 35, 8, 15, 22, 35, 14, 4, 12, 25, 1, 11, 10, 5, 13, 17, 7, 16, 18]
-        columns_triangle_all = [22, 20, 31, 29, 23, 25, 32, 24, 19, 30, 21, 35, 26, 28, 34,
-                                 27, 14, 4, 33, 12, 1, 6, 15, 35, 11, 2, 7, 5, 3, 18, 13, 8, 17, 10, 9, 16]
-        columns_turn_all = [20, 26, 23, 21, 24, 29, 22, 31, 3, 8, 9, 28, 32, 19, 4, 33, 27,
-                             34, 30, 6, 1, 25, 14, 2, 11, 15, 5, 12, 7, 35, 35, 13, 10, 18, 16, 17]
-        columns_square_all = [22, 19, 30, 23, 24, 29, 32, 33, 20, 31, 21, 28, 25, 1, 18, 26,
-                               4, 27, 12, 15, 35, 35, 5, 34, 7, 8, 2, 3, 14, 6, 11, 17, 13, 16, 10, 9]
+        if validation == "TT" and smote == True:
+
+        if validation == "CV" and smote == False:
+
+        if validation == "CV" and smote == True:
 
         if selected_features == 36:
             new_x = np.loadtxt(path, delimiter=",", usecols=range(1, 37))
@@ -121,27 +128,55 @@ def loadData(gesture, participant, selected_features):
 
 gestures = ["Circle", "Updown", "Tilt", "Triangle", "Turn", "Square"]
 participants = range(1,16)
-selected_features_list = range(1,37)
+selected_features_list = [36] # range(1,37)
 log = True
+
+validation = "TT"
+smote = True
+
 if log == True:
-    sys.stdout = open("results/results_1to36_feature_importances.txt", "w")
+    sys.stdout = open("results/results_36_feature_importances_w_overlapping_TT_smote.txt", "w")
 
 print("ALGORITHM, GESTURE, # OF SELECTED FEATURES, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
-      " TN, FP, FN, TP, FAR, FRR, EER") #, FEATURE_IMPORTANCE")
+      " TN, FP, FN, TP, FAR, FRR, EER", "FEATURE_IMPORTANCE")
 
 for selected_features in selected_features_list:
     for gesture in gestures:
         for participant in participants:
 
-            x_data, y_data = loadData(gesture, participant, selected_features)
+            x_data, y_data = loadData(gesture, participant, selected_features, validation, smote)
 
-            x_train, x_test, y_train, final_y_test = \
-                train_test_split(x_data, y_data, test_size=0.30, random_state=42, shuffle=True)
+            if validation == "CV":
+                kf = model_selection.StratifiedKFold(n_splits=5, shuffle=True, random_state=42) # True and 42
+                final_y_test, final_y_pred_RF = [], []
 
-            clfRF = RandomForestClassifier(n_estimators=501)
+                for train_index, test_index, in kf.split(x_data, y_data):
+                    x_train = x_data[train_index]
+                    y_train = y_data[train_index]
+                    x_test = x_data[test_index]
+                    y_test = y_data[test_index]
+                    final_y_test = np.concatenate([final_y_test, y_test])
 
-            clfRF.fit(x_train, y_train)
-            final_y_pred_RF = clfRF.predict(x_test)
+                    if smote == True:
+                        sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
+                        x_train, y_train = sm.fit_resample(x_train, y_train)
+
+                    clfRF = RandomForestClassifier(n_estimators=501)
+                    clfRF.fit(x_train, y_train)
+                    y_pred_RF = clfRF.predict(x_test)
+                    final_y_pred_RF = np.concatenate([final_y_pred_RF, y_pred_RF])
+
+            if validation == "TT":
+                x_train, x_test, y_train, final_y_test = \
+                    model_selection.train_test_split(x_data, y_data, test_size=0.30, random_state=42, shuffle=True)
+
+                if smote == True:
+                    sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
+                    x_train, y_train = sm.fit_resample(x_train, y_train)
+
+                clfRF = RandomForestClassifier(n_estimators=501)
+                clfRF.fit(x_train, y_train)
+                final_y_pred_RF = clfRF.predict(x_test)
 
             printAll(final_y_test, final_y_pred_RF, gesture, participant, clfRF, selected_features)
 
