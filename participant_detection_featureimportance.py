@@ -164,14 +164,14 @@ def loadData(gesture, participant, selected_features, validation, smote):
 
 gestures = ["Circle", "Updown", "Tilt", "Triangle", "Turn", "Square"]
 participants = range(1,16)
-selected_features_list = [36] # range(1,37)
+selected_features_list = range(1,37)
 log = True
 
-validation = "TT"
-smote = True
+validation = "CV"
+smote = False
 
 if log == True:
-    sys.stdout = open("results/results_36_feature_importances_w_overlapping_TT_smote.txt", "w")
+    sys.stdout = open("results/results_1to36_feature_importances_w_overlapping_CV.txt", "w")
 
 print("ALGORITHM, GESTURE, # OF SELECTED FEATURES, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
       " TN, FP, FN, TP, FAR, FRR, EER", "FEATURE_IMPORTANCE")
