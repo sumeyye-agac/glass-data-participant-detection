@@ -40,8 +40,8 @@ def printAll(expected, predicted, gesture, participant, model, selected_features
           + str(participant) + ", {:.2f}" .format(acc) + ", {:.2f}" .format(auc)
           + ", " + str(tp + fn) + ", " + str(fp + tn) + ", "
           + str(tn) + ", " + str(fp) + ", " + str(fn) + ", " + str(tp)
-          + ", {:.2f}".format(far) + ", {:.2f}" .format(frr) + ", " + "{:.2f}" .format(eer)
-          + ", " + str(feature_importance)[1:-1])
+          + ", {:.2f}".format(far) + ", {:.2f}" .format(frr) + ", " + "{:.2f}" .format(eer))
+          #+ ", " + str(feature_importance)[1:-1])
 		  
 def loadData(gesture, participant, selected_features, validation, smote):
     for p in range(1, 16):
@@ -167,14 +167,14 @@ participants = range(1,16)
 selected_features_list = range(1,37)
 log = True
 
-validation = "CV"
-smote = False
+validation = "TT"
+smote = True
 
 if log == True:
-    sys.stdout = open("results/results_1to36_feature_importances_w_overlapping_CV.txt", "w")
+    sys.stdout = open("results/results_1to36_feature_importances_w_overlapping_TT_smote.txt", "w")
 
 print("ALGORITHM, GESTURE, # OF SELECTED FEATURES, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
-      " TN, FP, FN, TP, FAR, FRR, EER", "FEATURE_IMPORTANCE")
+      " TN, FP, FN, TP, FAR, FRR, EER")#, "FEATURE_IMPORTANCE")
 
 for selected_features in selected_features_list:
     for gesture in gestures:
