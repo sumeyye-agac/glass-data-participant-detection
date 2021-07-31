@@ -167,11 +167,11 @@ participants = range(1,16)
 selected_features_list = range(1,37)
 log = True
 
-validation = "TT"
+validation = "CV"
 smote = True
 
 if log == True:
-    sys.stdout = open("results/results_1to36_feature_importances_w_overlapping_TT_smote.txt", "w")
+    sys.stdout = open("results/results_1to36_feature_importances_w_overlapping_CV_smote.txt", "w")
 
 print("ALGORITHM, GESTURE, # OF SELECTED FEATURES, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
       " TN, FP, FN, TP, FAR, FRR, EER")#, "FEATURE_IMPORTANCE")
