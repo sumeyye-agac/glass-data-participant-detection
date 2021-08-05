@@ -33,8 +33,6 @@ def printAll(expected, predicted, gesture, participant, model, selected_features
     frr = fn / (fn + tp)
     tpr = tp / (tp + fn)
 
-    feature_importance = list(model.feature_importances_)
-
     print("RF-501, " + gesture + ", " + str(selected_features) + ", "
           + str(participant) + ", {:.2f}" .format(acc) + ", {:.2f}" .format(auc)
           + ", " + str(tp + fn) + ", " + str(fp + tn) + ", "

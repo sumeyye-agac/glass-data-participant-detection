@@ -89,7 +89,7 @@ def loadData(gesture, participant, selected_features, validation, smote):
             columns_square_all = [19, 29, 24, 25, 22, 30, 32, 28, 20, 21, 23, 33, 27, 35, 31, 36, 26, 34, 15, 18,
                                   1, 12, 8, 5, 4, 7, 2, 3, 6, 14, 11, 13, 9, 17, 10, 16]
 
-        if validation == "CV" and smote == False:
+        if validation == "CV5" and smote == False:
             columns_circle_all = [29, 30, 24, 12, 23, 31, 32, 22, 14, 20, 11, 35, 8, 2, 21, 4, 33, 15, 26, 19, 3, 28,
                                   5, 25, 1, 17, 27, 18, 10, 36, 34, 6, 13, 7, 9, 16]
             columns_updown_all = [22, 25, 19, 20, 23, 32, 24, 29, 30, 33, 35, 4, 21, 28, 36, 31, 26, 8, 1, 7, 27, 6,
@@ -103,7 +103,7 @@ def loadData(gesture, participant, selected_features, validation, smote):
             columns_square_all = [19, 22, 23, 25, 30, 24, 29, 20, 32, 33, 26, 1, 21, 31, 28, 36, 4, 27, 18, 35, 5, 12,
                                   15, 7, 34, 2, 14, 8, 11, 3, 6, 17, 13, 10, 16, 9]
 
-        if validation == "CV" and smote == True:
+        if validation == "CV5" and smote == True:
             columns_circle_all = [29, 30, 35, 24, 32, 19, 2, 31, 14, 22, 8, 20, 12, 23, 25, 21, 11, 27, 33, 36, 26, 4,
                                   28, 5, 3, 15, 34, 17, 13, 18, 10, 1, 6, 7, 9, 16]
             columns_updown_all = [19, 22, 25, 20, 32, 23, 33, 29, 36, 35, 30, 21, 24, 28, 26, 27, 31, 4, 1, 7, 34, 10,
@@ -116,6 +116,35 @@ def loadData(gesture, participant, selected_features, validation, smote):
                                 5, 35, 14, 1, 11, 12, 15, 36, 10, 13, 18, 16, 17]
             columns_square_all = [19, 24, 29, 25, 22, 30, 27, 20, 32, 28, 21, 33, 23, 36, 35, 31, 26, 34, 18, 1, 15,
                                   12, 7, 4, 5, 8, 3, 2, 6, 11, 14, 17, 13, 9, 10, 16]
+
+        if validation == "CV3" and smote == True:
+            columns_circle_all = [ 29, 30, 32, 35, 24, 2, 22, 12, 19, 14, 31, 23, 21, 8, 20, 25, 11, 33, 27, 36, 26, 4,
+                                   28, 3, 5, 15, 13, 6, 18, 34, 17, 10, 1, 7, 9, 16]
+            columns_updown_all = [ 22, 25, 19, 20, 35, 32, 23, 29, 30, 33, 24, 36, 21, 26, 28, 27, 31, 4, 7, 10, 1, 2,
+                                   34, 5, 6, 13, 8, 3, 11, 14, 9, 17, 12, 15, 18, 16]
+            columns_tilt_all = [ 27, 24, 21, 29, 20, 30, 28, 31, 9, 35, 34, 32, 26, 23, 33, 3, 6, 2, 36, 22, 19, 12, 8,
+                                 25, 1, 14, 15, 4, 11, 5, 10, 13, 17, 7, 16, 18]
+            columns_triangle_all = [ 22, 32, 19, 24, 21, 29, 25, 20, 30, 31, 27, 23, 28, 34, 35, 33, 36, 26, 4, 1, 2,
+                                     14, 12, 15, 6, 11, 5, 8, 7, 3, 18, 13, 10, 17, 9, 16]
+            columns_turn_all = [ 20, 24, 23, 31, 26, 29, 22, 21, 33, 19, 27, 3, 34, 8, 28, 30, 32, 4, 9, 6, 25, 2, 7,
+                                 35, 5, 14, 1, 11, 12, 36, 15, 10, 13, 18, 16, 17]
+            columns_square_all = [ 24, 19, 29, 22, 25, 30, 32, 20, 33, 21, 28, 27, 23, 31, 35, 36, 26, 34, 1, 18, 15,
+                                   12, 5, 7, 4, 8, 2, 3, 6, 11, 14, 13, 17, 9, 10, 16]
+
+        if validation == "CV10" and smote == True:
+            columns_circle_all = [  29, 30, 35, 24, 32, 19, 2, 22, 23, 31, 12, 8, 14, 21, 20, 25, 11, 36, 33, 27, 26, 4,
+                                    28, 5, 3, 34, 15, 17, 13, 6, 18, 1, 10, 7, 9, 16]
+            columns_updown_all = [  22, 25, 19, 20, 32, 23, 33, 29, 36, 30, 21, 35, 24, 26, 28, 27, 31, 1, 4, 7, 10, 2,
+                                    34, 8, 6, 13, 5, 3, 14, 9, 11, 15, 17, 18, 12, 16]
+            columns_tilt_all = [  27, 24, 21, 29, 30, 20, 28, 31, 9, 26, 34, 32, 35, 23, 3, 6, 33, 36, 2, 22, 19, 8, 12,
+                                  15, 25, 1, 4, 14, 5, 11, 13, 10, 17, 7, 16, 18]
+            columns_triangle_all = [  22, 32, 24, 29, 19, 25, 21, 30, 20, 28, 31, 27, 23, 34, 35, 33, 26, 36, 4, 1, 2,
+                                      14, 15, 12, 6, 5, 11, 7, 8, 3, 18, 13, 10, 17, 9, 16]
+            columns_turn_all = [  20, 23, 26, 24, 31, 21, 22, 29, 33, 19, 28, 27, 32, 3, 34, 4, 8, 30, 9, 6, 25, 7, 35,
+                                  2, 5, 1, 14, 11, 12, 36, 15, 10, 13, 16, 18, 17]
+            columns_square_all = [  19, 24, 30, 29, 22, 25, 32, 20, 27, 33, 23, 28, 21, 31, 36, 35, 26, 34, 18, 1, 15,
+                                    12, 4, 5, 8, 7, 3, 2, 6, 14, 11, 13, 17, 9, 10, 16]
+
 
         if selected_features == 36:
             new_x = np.loadtxt(path, delimiter=",", usecols=range(1, 37))
@@ -164,14 +193,14 @@ def loadData(gesture, participant, selected_features, validation, smote):
 
 gestures = ["Circle", "Updown", "Tilt", "Triangle", "Turn", "Square"]
 participants = range(1,16)
-selected_features_list = range(1,37)
+selected_features_list = range(1,37) #[36] #
 log = True
 
-validation = "CV"
+validation = "CV10"
 smote = True
 
 if log == True:
-    sys.stdout = open("results/results_1to36_feature_importances_w_overlapping_CV_smote.txt", "w")
+    sys.stdout = open("results/results_1to36_feature_importances_w_overlapping_CV10_smote.txt", "w")
 
 print("ALGORITHM, GESTURE, # OF SELECTED FEATURES, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
       " TN, FP, FN, TP, FAR, FRR, EER")#, "FEATURE_IMPORTANCE")
@@ -182,8 +211,8 @@ for selected_features in selected_features_list:
 
             x_data, y_data = loadData(gesture, participant, selected_features, validation, smote)
 
-            if validation == "CV":
-                kf = model_selection.StratifiedKFold(n_splits=5, shuffle=True, random_state=42) # True and 42
+            if validation == "CV5" or validation == "CV3" or validation == "CV10":
+                kf = model_selection.StratifiedKFold(n_splits=10, shuffle=True, random_state=42) # True and 42
                 final_y_test, final_y_pred_RF = [], []
 
                 for train_index, test_index, in kf.split(x_data, y_data):
