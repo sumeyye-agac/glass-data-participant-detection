@@ -17,9 +17,10 @@ from sklearn.metrics import roc_auc_score
 from scipy.optimize import brentq
 from sklearn.metrics import accuracy_score
 from scipy.interpolate import interp1d
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 import sys
+from imblearn.over_sampling._smote import SMOTE
+from sklearn import model_selection
 
 
 def printAll(expected, predicted, gesture, participant, model, selected_features):
@@ -128,10 +129,13 @@ selected_sensors = ["Acc", "Gyr", "RotVec", "MagField",
                     "AccRotVecMagField", "AccGyrRotVecMagField"]
 
 log = True
-overlapping = False
+overlapping = True
+
+smote = False
+validation = "CV3"
 
 if log == True:
-    sys.stdout = open("results/results_sensor_based_wo_overlapping.txt", "w")
+    sys.stdout = open("results/results_sensor_based_w_overlapping_CV3.txt", "w")
 
 print("ALGORITHM, GESTURE, # OF SELECTED SENSORS, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
       " TN, FP, FN, TP, FAR, FRR, EER")
@@ -142,13 +146,39 @@ for selected_features in selected_sensors:
 
             x_data, y_data = loadData(gesture, participant, selected_features, overlapping)
 
-            x_train, x_test, y_train, final_y_test = \
-                train_test_split(x_data, y_data, test_size=0.30, random_state=42, shuffle=True)
+            if validation == "CV3" or validation == "CV5" or validation == "CV10":
+                kf = model_selection.StratifiedKFold(n_splits=3, shuffle=True, random_state=42) # True and 42
+                final_y_test, final_y_pred_RF = [], []
 
-            clfRF = RandomForestClassifier(n_estimators=501)
+                for train_index, test_index, in kf.split(x_data, y_data):
+                    x_train = x_data[train_index]
+                    y_train = y_data[train_index]
+                    x_test = x_data[test_index]
+                    y_test = y_data[test_index]
+                    final_y_test = np.concatenate([final_y_test, y_test])
 
-            clfRF.fit(x_train, y_train)
-            final_y_pred_RF = clfRF.predict(x_test)
+                    if smote == True:
+                        sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
+                        x_train, y_train = sm.fit_resample(x_train, y_train)
+
+                    clfRF = RandomForestClassifier(n_estimators=501)
+                    clfRF.fit(x_train, y_train)
+                    y_pred_RF = clfRF.predict(x_test)
+                    final_y_pred_RF = np.concatenate([final_y_pred_RF, y_pred_RF])
+
+
+            if validation == "TT":
+                x_train, x_test, y_train, final_y_test = \
+                    model_selection.train_test_split(x_data, y_data, test_size=0.30, random_state=42, shuffle=True)
+
+                if smote == True:
+                    sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
+                    x_train, y_train = sm.fit_resample(x_train, y_train)
+
+                clfRF = RandomForestClassifier(n_estimators=501)
+
+                clfRF.fit(x_train, y_train)
+                final_y_pred_RF = clfRF.predict(x_test)
 
             printAll(final_y_test, final_y_pred_RF, gesture, participant, clfRF, selected_features)
 
