@@ -1,14 +1,4 @@
-# ------------------------------------------------------------------------
-# If features are extracted (use feature_extraction.py to extract if needed.)
-# it will generate the performance results for each gesture-participant combination
-# by using best 5, 10, 15 and 20 features and 36 features.
-#
-# By setting log to True (log=True) results can be saved in a csv file
-# and be investigated in a more detailed way further.
-#
-# By changing gestures, participants, selected_features_list variables we realize a specific experiment
-# instead of all which is the default setting.
-# ------------------------------------------------------------------------
+
 
 import numpy as np
 from sklearn import metrics
@@ -35,20 +25,21 @@ def printAll(expected, predicted, gesture, participant, model, selected_features
     tpr = tp / (tp + fn)
 
     print("RF-501, " + gesture + ", " + str(selected_features) + ", "
-          + str(participant) + ", {:.2f}" .format(acc) + ", {:.2f}" .format(auc)
+          + str(participant) + ", {:.2f}".format(acc) + ", {:.2f}".format(auc)
           + ", " + str(tp + fn) + ", " + str(fp + tn) + ", "
           + str(tn) + ", " + str(fp) + ", " + str(fn) + ", " + str(tp)
-          + ", {:.2f}".format(far) + ", {:.2f}" .format(frr) + ", " + "{:.2f}" .format(eer))
-		  
+          + ", {:.2f}".format(far) + ", {:.2f}".format(frr) + ", " + "{:.2f}".format(eer))
+
+
 def loadData(gesture, participant, selected_features, overlapping):
     for p in range(1, 16):
 
         if overlapping == True:
-            path = "./features_w_overlapping/"+ "Features_p"\
+            path = "./features_w_overlapping/" + "Features_p" \
                    + str(p) + "_" + gesture + ".csv"
         else:
             path = "./features_wo_overlapping/" + "Features_p" \
-                    + str(p) + "_" + gesture + ".csv"
+                   + str(p) + "_" + gesture + ".csv"
 
         # iD, Accmin_X, Accmin_Y, Accmin_Z,  0              1 2 3
         # Accmax_X, Accmax_Y, Accmax_Z,                     4 5 6
@@ -119,9 +110,10 @@ def loadData(gesture, participant, selected_features, overlapping):
 
     return x, y
 
+
 gestures = ["Circle", "Updown", "Tilt", "Triangle", "Turn", "Square"]
 
-participants = range(1,16)
+participants = range(1, 16)
 
 selected_sensors = ["Acc", "Gyr", "RotVec", "MagField",
                     "AccGyr", "AccRotVec", "AccMagField", "GyrRotVec", "GyrMagField",
@@ -129,16 +121,18 @@ selected_sensors = ["Acc", "Gyr", "RotVec", "MagField",
                     "AccRotVecMagField", "AccGyrRotVecMagField"]
 
 log = True
-overlapping = True
+overlapping = False
 
 smote = False
-validation = "CV3"
+validation = "CV"
+k = 10
 
 if log == True:
-    sys.stdout = open("results/results_sensor_based_w_overlapping_CV3.txt", "w")
+    sys.stdout = open("results/results_sensor_based_w_overlapping_CV" + str(k) + ".txt", "w")
 
-print("ALGORITHM, GESTURE, # OF SELECTED SENSORS, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
-      " TN, FP, FN, TP, FAR, FRR, EER")
+print(
+    "ALGORITHM, GESTURE, # OF SELECTED SENSORS, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
+    " TN, FP, FN, TP, FAR, FRR, EER")
 
 for selected_features in selected_sensors:
     for gesture in gestures:
@@ -146,9 +140,9 @@ for selected_features in selected_sensors:
 
             x_data, y_data = loadData(gesture, participant, selected_features, overlapping)
 
-            if validation == "CV3" or validation == "CV5" or validation == "CV10":
-                kf = model_selection.StratifiedKFold(n_splits=3, shuffle=True, random_state=42) # True and 42
-                final_y_test, final_y_pred_RF = [], []
+            if validation == "CV":
+                kf = model_selection.StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
+                final_y_test, final_y_pred = [], []
 
                 for train_index, test_index, in kf.split(x_data, y_data):
                     x_train = x_data[train_index]
@@ -161,26 +155,25 @@ for selected_features in selected_sensors:
                         sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
                         x_train, y_train = sm.fit_resample(x_train, y_train)
 
-                    clfRF = RandomForestClassifier(n_estimators=501)
-                    clfRF.fit(x_train, y_train)
-                    y_pred_RF = clfRF.predict(x_test)
-                    final_y_pred_RF = np.concatenate([final_y_pred_RF, y_pred_RF])
+                    clf = RandomForestClassifier(n_estimators=501)
+                    clf.fit(x_train, y_train)
+                    y_pred = clf.predict(x_test)
+                    final_y_pred = np.concatenate([final_y_pred, y_pred])
 
+            #if validation == "TT":
+            #    x_train, x_test, y_train, final_y_test = \
+            #        model_selection.train_test_split(x_data, y_data, test_size=0.30, random_state=42, shuffle=True)
+            #
+            #    if smote == True:
+            #        sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
+            #        x_train, y_train = sm.fit_resample(x_train, y_train)
+            #
+            #    clfRF = RandomForestClassifier(n_estimators=501)
 
-            if validation == "TT":
-                x_train, x_test, y_train, final_y_test = \
-                    model_selection.train_test_split(x_data, y_data, test_size=0.30, random_state=42, shuffle=True)
+            #    clfRF.fit(x_train, y_train)
+            #    final_y_pred_RF = clfRF.predict(x_test)
 
-                if smote == True:
-                    sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
-                    x_train, y_train = sm.fit_resample(x_train, y_train)
-
-                clfRF = RandomForestClassifier(n_estimators=501)
-
-                clfRF.fit(x_train, y_train)
-                final_y_pred_RF = clfRF.predict(x_test)
-
-            printAll(final_y_test, final_y_pred_RF, gesture, participant, clfRF, selected_features)
+            printAll(final_y_test, final_y_pred, gesture, participant, clf, selected_features)
 
 if log == True:
     sys.stdout.close()
