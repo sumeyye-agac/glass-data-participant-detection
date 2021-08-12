@@ -11,6 +11,10 @@ from sklearn.ensemble import RandomForestClassifier
 import sys
 from imblearn.over_sampling._smote import SMOTE
 from sklearn import model_selection
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import VotingClassifier
 
 
 def printAll(expected, predicted, gesture, participant, model, selected_features):
@@ -121,59 +125,108 @@ selected_sensors = ["Acc", "Gyr", "RotVec", "MagField",
                     "AccRotVecMagField", "AccGyrRotVecMagField"]
 
 log = True
-overlapping = False
 
+overlapping = False
 smote = False
+seed = 42
+
 validation = "CV"
 k = 10
 
-if log == True:
-    sys.stdout = open("results/results_sensor_based_w_overlapping_CV" + str(k) + ".txt", "w")
+classifiers = ["RandomForest",
+               "AdaBoost",
+               "MLP",
+               "SVM_rbf",
+               "SVM_poly",
+               "SVM_rbf+SVM_poly",
+               "MLP+SVM_rbf",
+               "MLP+SVM_poly"]
 
-print(
-    "ALGORITHM, GESTURE, # OF SELECTED SENSORS, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
-    " TN, FP, FN, TP, FAR, FRR, EER")
+for classifier in classifiers:
 
-for selected_features in selected_sensors:
-    for gesture in gestures:
-        for participant in participants:
+    if log == True:
+        sys.stdout = open("results/sensor_based_wo_overlapping_CV" + str(k) + "_" + classifier + ".txt", "w")
 
-            x_data, y_data = loadData(gesture, participant, selected_features, overlapping)
+    print(
+        "ALGORITHM, GESTURE, # OF SELECTED SENSORS, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
+        " TN, FP, FN, TP, FAR, FRR, EER")
 
-            if validation == "CV":
-                kf = model_selection.StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
-                final_y_test, final_y_pred = [], []
+    for selected_features in selected_sensors:
+        for gesture in gestures:
+            for participant in participants:
 
-                for train_index, test_index, in kf.split(x_data, y_data):
-                    x_train = x_data[train_index]
-                    y_train = y_data[train_index]
-                    x_test = x_data[test_index]
-                    y_test = y_data[test_index]
-                    final_y_test = np.concatenate([final_y_test, y_test])
+                x_data, y_data = loadData(gesture, participant, selected_features, overlapping)
 
-                    if smote == True:
-                        sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
-                        x_train, y_train = sm.fit_resample(x_train, y_train)
+                if validation == "CV":
+                    kf = model_selection.StratifiedKFold(n_splits=k, shuffle=True, random_state=seed)
+                    final_y_test, final_y_pred = [], []
 
-                    clf = RandomForestClassifier(n_estimators=501)
-                    clf.fit(x_train, y_train)
-                    y_pred = clf.predict(x_test)
-                    final_y_pred = np.concatenate([final_y_pred, y_pred])
+                    for train_index, test_index, in kf.split(x_data, y_data):
+                        x_train = x_data[train_index]
+                        y_train = y_data[train_index]
+                        x_test = x_data[test_index]
+                        y_test = y_data[test_index]
+                        final_y_test = np.concatenate([final_y_test, y_test])
 
-            #if validation == "TT":
-            #    x_train, x_test, y_train, final_y_test = \
-            #        model_selection.train_test_split(x_data, y_data, test_size=0.30, random_state=42, shuffle=True)
-            #
-            #    if smote == True:
-            #        sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
-            #        x_train, y_train = sm.fit_resample(x_train, y_train)
-            #
-            #    clfRF = RandomForestClassifier(n_estimators=501)
+                        if smote == True:
+                            sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=seed)
+                            x_train, y_train = sm.fit_resample(x_train, y_train)
 
-            #    clfRF.fit(x_train, y_train)
-            #    final_y_pred_RF = clfRF.predict(x_test)
+                        if classifier == "RandomForest":
+                            clf = RandomForestClassifier(n_estimators=501)
+                        if classifier == "AdaBoost":
+                            clf = AdaBoostClassifier(n_estimators=501, random_state=seed)
+                        if classifier == "MLP":
+                            clf = MLPClassifier(hidden_layer_sizes=(100, 10))
+                        if classifier == "SVM_rbf":
+                            clf = SVC(kernel='rbf')
+                        if classifier == "SVM_poly":
+                            clf = SVC(kernel='poly')
 
-            printAll(final_y_test, final_y_pred, gesture, participant, clf, selected_features)
+                        if classifier == "SVM_rbf+SVM_poly":
+                            estimators = []
+                            model1 = SVC(kernel='rbf')
+                            estimators.append(('svm_rbf', model1))
+                            model2 = SVC(kernel='poly')
+                            estimators.append(('svm_poly', model2))
+                            clf = VotingClassifier(estimators)
 
-if log == True:
-    sys.stdout.close()
+                        if classifier == "MLP+SVM_rbf":
+                            estimators = []
+                            model1 = MLPClassifier(hidden_layer_sizes=(100, 10))
+                            estimators.append(('mlp', model1))
+                            model2 = SVC(kernel='rbf')
+                            estimators.append(('svm_rbf', model2))
+                            clf = VotingClassifier(estimators)
+
+                        if classifier == "MLP+SVM_poly":
+                            estimators = []
+                            model1 = MLPClassifier(hidden_layer_sizes=(100, 10))
+                            estimators.append(('mlp', model1))
+                            model2 = SVC(kernel='poly')
+                            estimators.append(('svm_poly', model2))
+                            clf = VotingClassifier(estimators)
+
+
+                        clf.fit(x_train, y_train)
+                        y_pred = clf.predict(x_test)
+                        final_y_pred = np.concatenate([final_y_pred, y_pred])
+
+                #if validation == "TT":
+                #    x_train, x_test, y_train, final_y_test = \
+                #        model_selection.train_test_split(x_data, y_data, test_size=0.30, random_state=42, shuffle=True)
+                #
+                #    if smote == True:
+                #        sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
+                #        x_train, y_train = sm.fit_resample(x_train, y_train)
+                #
+                #    clfRF = RandomForestClassifier(n_estimators=501)
+
+                #    clfRF.fit(x_train, y_train)
+                #    final_y_pred_RF = clfRF.predict(x_test)
+
+                printAll(final_y_test, final_y_pred, gesture, participant, clf, selected_features)
+
+    if log == True:
+        sys.stdout.close()
+    print(classifier + " end")
