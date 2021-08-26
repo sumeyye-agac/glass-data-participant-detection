@@ -17,7 +17,7 @@ from sklearn.svm import SVC
 from sklearn.ensemble import VotingClassifier
 
 
-def printAll(expected, predicted, gesture, participant, model, selected_features):
+def printAll(classifier, expected, predicted, gesture, participant, model, selected_features):
     auc = roc_auc_score(expected, predicted)
     fpr, tpr, thresholds = roc_curve(expected, predicted, pos_label=1)
     eer = brentq(lambda x: 1. - x - interp1d(fpr, tpr)(x), 0., 1.)
@@ -28,7 +28,7 @@ def printAll(expected, predicted, gesture, participant, model, selected_features
     frr = fn / (fn + tp)
     tpr = tp / (tp + fn)
 
-    print("RF-501, " + gesture + ", " + str(selected_features) + ", "
+    print(classifier + ", " + gesture + ", " + str(selected_features) + ", "
           + str(participant) + ", {:.2f}".format(acc) + ", {:.2f}".format(auc)
           + ", " + str(tp + fn) + ", " + str(fp + tn) + ", "
           + str(tn) + ", " + str(fp) + ", " + str(fn) + ", " + str(tp)
@@ -142,6 +142,10 @@ classifiers = ["RandomForest",
                "MLP+SVM_rbf",
                "MLP+SVM_poly"]
 
+classifiers = ["RandomForest_101", "AdaBoost_101"]
+
+classifiers = ["MLP+SVM_rbf"]
+
 for classifier in classifiers:
 
     if log == True:
@@ -172,10 +176,10 @@ for classifier in classifiers:
                             sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=seed)
                             x_train, y_train = sm.fit_resample(x_train, y_train)
 
-                        if classifier == "RandomForest":
-                            clf = RandomForestClassifier(n_estimators=501)
-                        if classifier == "AdaBoost":
-                            clf = AdaBoostClassifier(n_estimators=501, random_state=seed)
+                        if classifier == "RandomForest_101":
+                            clf = RandomForestClassifier(n_estimators=101)
+                        if classifier == "AdaBoost_101":
+                            clf = AdaBoostClassifier(n_estimators=101, random_state=seed)
                         if classifier == "MLP":
                             clf = MLPClassifier(hidden_layer_sizes=(100, 10))
                         if classifier == "SVM_rbf":
@@ -225,8 +229,7 @@ for classifier in classifiers:
                 #    clfRF.fit(x_train, y_train)
                 #    final_y_pred_RF = clfRF.predict(x_test)
 
-                printAll(final_y_test, final_y_pred, gesture, participant, clf, selected_features)
+                printAll(classifier, final_y_test, final_y_pred, gesture, participant, clf, selected_features)
 
     if log == True:
         sys.stdout.close()
-    print(classifier + " end")
