@@ -127,7 +127,7 @@ selected_sensors = ["Acc", "Gyr", "RotVec", "MagField",
 log = True
 
 overlapping = False
-smote = False
+smote = True
 seed = 42
 
 validation = "CV"
@@ -144,12 +144,12 @@ classifiers = ["RandomForest",
 
 classifiers = ["RandomForest_101", "AdaBoost_101"]
 
-classifiers = ["MLP+SVM_rbf"]
+classifiers = ["AdaBoost_501"]
 
 for classifier in classifiers:
 
     if log == True:
-        sys.stdout = open("results/sensor_based_wo_overlapping_CV" + str(k) + "_" + classifier + ".txt", "w")
+        sys.stdout = open("results/sensor_based_wo_overlapping_w_smote_CV" + str(k) + "_" + classifier + ".txt", "w")
 
     print(
         "ALGORITHM, GESTURE, # OF SELECTED SENSORS, PARTICIPANT_NO, ACCURACY, AUC, #ofPositiveInstance, #ofNegativeInstance,"
@@ -176,10 +176,10 @@ for classifier in classifiers:
                             sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=seed)
                             x_train, y_train = sm.fit_resample(x_train, y_train)
 
-                        if classifier == "RandomForest_101":
-                            clf = RandomForestClassifier(n_estimators=101)
-                        if classifier == "AdaBoost_101":
-                            clf = AdaBoostClassifier(n_estimators=101, random_state=seed)
+                        if classifier == "RandomForest_501":
+                            clf = RandomForestClassifier(n_estimators=501)
+                        if classifier == "AdaBoost_501":
+                            clf = AdaBoostClassifier(n_estimators=501, random_state=seed)
                         if classifier == "MLP":
                             clf = MLPClassifier(hidden_layer_sizes=(100, 10))
                         if classifier == "SVM_rbf":

@@ -1,14 +1,14 @@
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
 import sys
 from imblearn.over_sampling._smote import SMOTE
 from sklearn import model_selection
 from sklearn import metrics
+from sklearn.ensemble import AdaBoostClassifier
 
 
 def printAll(expected, predicted, gesture, selected_features):
     print("-" * 50)
-    print(gesture + ", " + selected_features)
+    print(gesture + " " + selected_features)
     results = metrics.classification_report(expected, predicted)
     print(results)
     print(metrics.confusion_matrix(expected, predicted))
@@ -101,22 +101,24 @@ selected_sensors = ["Acc", "Gyr", "RotVec", "MagField",
                     "RotVecMagField", "AccGyrRotVec", "AccGyrMagField", "GyrRotVecMagField",
                     "AccRotVecMagField", "AccGyrRotVecMagField"]
 
+
 log = True
 overlapping = True
 
 smote = True
 validation = "CV10"
+seed = 42
 
 if log == True:
-    sys.stdout = open("results/results_gesture_recognition_w_overlapping_CV10_smote.txt", "w")
+    sys.stdout = open("results/results_gesture_recognition_w_overlapping_w_smote_CV10_Adaboost_501.txt", "w")
 
 for selected_features in selected_sensors:
     for gesture in gestures:
 
         x_data, y_data = loadData(gesture, selected_features, overlapping)
 
-        kf = model_selection.StratifiedKFold(n_splits=10, shuffle=True, random_state=42)  # True and 42
-        final_y_test, final_y_pred_RF = [], []
+        kf = model_selection.StratifiedKFold(n_splits=10, shuffle=True, random_state=seed) 
+        final_y_test, final_y_pred = [], []
 
         for train_index, test_index, in kf.split(x_data, y_data):
             x_train = x_data[train_index]
@@ -129,12 +131,12 @@ for selected_features in selected_sensors:
                 sm = SMOTE(sampling_strategy='auto', k_neighbors=2, random_state=42)
                 x_train, y_train = sm.fit_resample(x_train, y_train)
 
-            clfRF = RandomForestClassifier(n_estimators=501)
-            clfRF.fit(x_train, y_train)
-            y_pred_RF = clfRF.predict(x_test)
-            final_y_pred_RF = np.concatenate([final_y_pred_RF, y_pred_RF])
+            clf = AdaBoostClassifier(n_estimators=501, random_state=seed)
+            clf.fit(x_train, y_train)
+            y_pred = clf.predict(x_test)
+            final_y_pred = np.concatenate([final_y_pred, y_pred])
 
-        printAll(final_y_test, final_y_pred_RF, gesture, selected_features)
+        printAll(final_y_test, final_y_pred, gesture, selected_features)
 
 if log == True:
     sys.stdout.close()
