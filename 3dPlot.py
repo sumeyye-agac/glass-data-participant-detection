@@ -1,6 +1,3 @@
-# Sumeyye Agac - 2018800039
-# CmpE 58Z - Introduction to Biometrics (Spring 2021)
-# Project
 # ------------------------------------------------------------------------
 # It can be used to visualize raw data.
 # It is useful to regenerate plots used in the project presentation.
